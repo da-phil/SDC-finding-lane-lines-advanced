@@ -83,24 +83,22 @@ I verified that my perspective transform was working as expected by drawing the 
 I used a combination of color thresholds on channels in different colour spaces to generate a binary images.
 In order to find out which colour channel describes the white and yellow lines best I considered the colour channels of the colour spaces RGB, HLS and LAB. I selected some example images, converted them to the mentioned colour spaces and plotted all available colour channels for visualisation purpose.
 
-![](colourspaces_challenge1_orig.png)
-![](colourspaces_challenge1.png)
+[Original image](examples/colourspaces_challenge1_orig.png)
+[Image in RGB, HLS and LAB colour spaces](examples/colourspaces_challenge1.png)
 
-![](colourspaces_challenge2_orig.png)
-![](colourspaces_challenge2.png)
+![Original image](examples/colourspaces_challenge2_orig.png)
+![Image in RGB, HLS and LAB colour spaces](examples/colourspaces_challenge2.png)
 
-![](colourspaces_challenge3_orig.png)
-![](colourspaces_challenge3.png)
+![Original image](examples/colourspaces_challenge3_orig.png)
+![Image in RGB, HLS and LAB colour spaces](examples/colourspaces_challenge3.png)
 
-![](colourspaces_challenge4_orig.png)
-![](colourspaces_challenge4.png)
+![Original image](examples/colourspaces_challenge4_orig.png)
+![Image in RGB, HLS and LAB colour spaces](examples/colourspaces_challenge4.png)
 
-In the end I chose the L channel of the HLS colour space for detecting white lines and the B channel of the LAB colour space for detecting yellow lines. Both thresholded channels are then combined with the locial OR into one binary segmented image.
-
-Here's an example of my output for this step.
-
-![alt text][image3]
-
+In the end I chose the L channel of the HLS colour space for detecting white lines and the B channel of the LAB colour space for detecting yellow lines. Both thresholded channels are then combined with the logical OR into one binary segmented image.
+Here are some examples:
+![](examples/colourspaces_test5_comparison.png)
+![](examples/colourspaces_challenge3_comparison.png)
 
 ##### Image histogram equalization
 In order to be invariant to exposure deviations of the camera images I employed adaptive histogram equalization by applying the 
