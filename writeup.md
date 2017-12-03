@@ -161,7 +161,21 @@ Then I did some other stuff and fit my lane lines with a 2nd order polynomial ki
 ![alt text][image5]
 
 #### 5. Calculation of radius of curvature of the lane and position of the vehicle with respect to center
+The radius of curvature is computed for both lane lines using the equation: 
+R_curve = (1+(2Ay+B)^2)^(3/2) / |2A|
+
+Before computing the radius a line fit with metric world units was done by assuming 30 meters per 720 pixels in y and 3.7 meters per 700 pixels in x.
+The radius of curvature is computed for both lines and the average curvature over 10 samples is reported.
+
+For the calculation of the position of the vehicle with respect to the center first the position of each line with respect to the center is calculated in `self.left_line.line_base_pos` and `self.right_line.line_base_pos`.
+Therefore each line is evaluated at `y = ysize` to get the x-coordinate of the lines, now for the left line this position is subtracted from the center (`xsize/2`) and for the right lane the center is subtracted from the x-coordinate of the line.
+To get the car position with respect to the center only the right line position has to be subtracted from the left one.
+If the resulting value is negative then the vehicle is located to the left of the lane, while if it is positive it is located to the right.
+
 ```python
+    self.ym_per_pix =  30 / 720 # meters per pixel in y dimension
+    self.xm_per_pix = 3.7 / 700 # meters per pixel in x dimension
+    
     # Fit new polynomials also to x,y in world space
     left_fit_cr  = np.polyfit(ploty*self.ym_per_pix, self.left_line.bestx*self.xm_per_pix, 2)
     right_fit_cr = np.polyfit(ploty*self.ym_per_pix, self.right_line.bestx*self.xm_per_pix, 2)
@@ -169,16 +183,23 @@ Then I did some other stuff and fit my lane lines with a 2nd order polynomial ki
     y_eval = ysize # evaluate curvature in the bottom of the image, close to the car
 
     # Calculate radius of curvature of the lines in meters
-    self.left_line.radius_of_curvature = (((1 + (2*left_fit_cr[0]*y_eval*self.ym_per_pix + left_fit_cr[1])**2)**1.5)
-                                          / np.absolute(2*left_fit_cr[0]))
-    self.right_line.radius_of_curvature = (((1 + (2*right_fit_cr[0]*y_eval*self.ym_per_pix + right_fit_cr[1])**2)**1.5)
-                                           / np.absolute(2*right_fit_cr[0]))
+    left_curvature = (((1 + (2*left_fit_cr[0]*y_eval*self.ym_per_pix + left_fit_cr[1])**2)**1.5) /
+                        np.absolute(2*left_fit_cr[0]))
+    right_curvature = (((1 + (2*right_fit_cr[0]*y_eval*self.ym_per_pix + right_fit_cr[1])**2)**1.5) / 
+                        np.absolute(2*right_fit_cr[0]))
+    self.left_line_curv_buffer.append(left_curvature)
+    self.right_line_curv_buffer.append(right_curvature)
+
+    self.left_line.radius_of_curvature  = np.average(self.left_line_curv_buffer)
+    self.right_line.radius_of_curvature = np.average(self.right_line_curv_buffer)
 
     # Calculate distance between image center and lines in meters
     left_fitx_cr  = np.polyval(left_fit_cr,  [y_eval*self.ym_per_pix])
     right_fitx_cr = np.polyval(right_fit_cr, [y_eval*self.ym_per_pix])
     self.left_line.line_base_pos  = self.xm_per_pix*xsize/2 - left_fitx_cr
     self.right_line.line_base_pos = right_fitx_cr - self.xm_per_pix*xsize/2
+    
+    car_lane_offset = self.left_line.line_base_pos - self.right_line.line_base_pos 
 ```
 
 #### 6. Example output after window search
@@ -192,10 +213,12 @@ Here are two examples of how the window search was able to find the lane lines i
 
 ### Pipeline (video)
 
+![](videos_output/challenge_video.mp4.gif)
+
 Here are the links to the processed videos:
-* [project_video.mp4](./videos_output/project_video.mp4)
-* [challenge_video.mp4](./videos_output/challenge_video.mp4)
-* [harder_challenge_video.mp4](./videos_output/harder_challenge_video.mp4)
+* [project_video.mp4](videos_output/project_video.mp4)
+* [challenge_video.mp4](videos_output/challenge_video.mp4)
+* [harder_challenge_video.mp4](videos_output/harder_challenge_video.mp4)
 
 ### Discussion of issues with the current solution
 
