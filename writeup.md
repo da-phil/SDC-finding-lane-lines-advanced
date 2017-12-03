@@ -28,30 +28,46 @@ To demonstrate this step, I will describe how I apply the distortion correction 
 ![alt text][image2]
 
 #### 2. Perspective transformation (birds eye view)
+For obtaining the perspective transformation matrix I only selected the `straight_line*` images.
+The code for my perspective transform includes a helper function called `get_straight_lines()` from *project 1 (finding lanes)* which returns two straight lines, one for the left and one for the right.
+With those lines I calculate my `src` points in the unwarped image.
+```python
+    lines2 = get_straight_lines(undist)
+    draw_lines(line_img, lines2, color=[255, 0, 0], thickness=10)
+    
+    combined_img = weighted_img(line_img, image)
 
-The code for my perspective transform includes a function called `warper()`, which appears in lines 1 through 8 in the file `example.py` (output_images/examples/example.py) (or, for example, in the 3rd code cell of the IPython notebook).  The `warper()` function takes as inputs an image (`img`), as well as source (`src`) and destination (`dst`) points.  I chose the hardcode the source and destination points in the following manner:
+    left_x1,  left_y1,  left_x2,  left_y2  = lines2[0][0]
+    right_x1, right_y1, right_x2, right_y2 = lines2[1][0]
+    src = np.array([[left_x1,  left_y1],
+                    [right_x1, right_y1],
+                    [right_x2, right_y2],
+                    [left_x2,  left_y2]], dtype=np.float32)
+```
+
+The corresponding `dst` points in the warped image are just the image corners moved by `offset` on the x-axis towards the middle of the image. I chose an offset of `300` pixels which worked very reasonable for the videos `project_video.mp4` and `challenge_video.mp4`. In video `harder_challenge_video.mp4` this value must be way higher for not cutting off the road markings in those extreme curves.
 
 ```python
-src = np.float32(
-    [[(img_size[0] / 2) - 55, img_size[1] / 2 + 100],
-    [((img_size[0] / 6) - 10), img_size[1]],
-    [(img_size[0] * 5 / 6) + 60, img_size[1]],
-    [(img_size[0] / 2 + 55), img_size[1] / 2 + 100]])
-dst = np.float32(
-    [[(img_size[0] / 4), 0],
-    [(img_size[0] / 4), img_size[1]],
-    [(img_size[0] * 3 / 4), img_size[1]],
-    [(img_size[0] * 3 / 4), 0]])
+    dst = np.array([[offset,        0],
+                    [xsize-offset,  0], 
+                    [xsize-offset,  ysize],
+                    [offset,        ysize]], dtype=np.float32)
 ```
 
 This resulted in the following source and destination points:
 
 | Source        | Destination   | 
 |:-------------:|:-------------:| 
-| 585, 460      | 320, 0        | 
-| 203, 720      | 320, 720      |
-| 1127, 720     | 960, 720      |
-| 695, 460      | 960, 0        |
+| 572,  468      | 300, 0       | 
+| 712,  468      | 980, 0       |
+| 1100, 720      | 980, 720     |
+| 205,  720      | 300, 720     |
+
+For later usage I also calculated the inverse transformation from warped space to unwarped space.
+```python
+    M = cv2.getPerspectiveTransform(src, dst)
+    Minv = cv2.getPerspectiveTransform(dst, src)
+```    
 
 I verified that my perspective transform was working as expected by drawing the `src` and `dst` points onto a test image and its warped counterpart to verify that the lines appear parallel in the warped image.
 
