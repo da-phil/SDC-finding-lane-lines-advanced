@@ -60,6 +60,7 @@ I verified that my perspective transform was working as expected by drawing the 
 
 #### 3. Segmentation of lane lines
 
+##### Choice of colour channels
 I used a combination of color thresholds in on channels in different colour spaces to generate a binary images.
 In order to find out which colour channel describes the white and yellow lines best I considered the colour channels of the colour spaces RGB, HLS and LAB. I selected some example images, converted them to the mentioned colour spaces and plotted all available colour channels for visualisation purpose.
 In the end I chose the L channel of the HLS colour space for detecting white lines and the B channel of the LAB colour space for detecting yellow lines.
@@ -67,6 +68,12 @@ In the end I chose the L channel of the HLS colour space for detecting white lin
 Here's an example of my output for this step.
 
 ![alt text][image3]
+
+##### Image histogram equalization
+In order to be invariant to the exposure of the camera images I employed adaptive histogram equalization and used the 
+[OpenCV CLAHE - Contrast Limited Adaptive Histogram Equalization - function](https://docs.opencv.org/3.1.0/d5/daf/tutorial_py_histogram_equalization.html).
+
+##### Adaptive thresholding
 
 
 #### 4. Lane detection
@@ -79,10 +86,16 @@ Here's an example of my output for this step.
 * Creating windows to mark pixels considered for line fitting
 
 ##### 2. Fitting lines with RANSAC approach
-Using the [https://en.wikipedia.org/wiki/Random_sample_consensus](RANSAC) method for data fitting improves robustness against outliers. Due to a rather simple segmentation there are plenty of outliers in the segmented image which might cause a bad fit, where lines have offsets or even bend into the wrong direction.
-
+Using the [RANSAC](https://en.wikipedia.org/wiki/Random_sample_consensus) method for data fitting improves robustness against outliers. Due to a rather simple segmentation there are plenty of outliers in the segmented image which might cause a bad fit, where lines have offsets or even bend into the wrong direction.
+After a couple of tests this method was abolished because it was just too slow for testing, in the end the simple polyfit approach was good enough.
 
 ##### 3. Averaging line coefficients
+In order to get a fit which is robust and flicker-free the coefficients as well as the calculated line x values were averaged over 10 fits using pythons `collections.deque` class. For example:
+```python
+    self.left_fit_buffer  = deque(maxlen=self.buffer_size)
+    ....
+    self.left_line.best_fit  = np.average(self.left_fit_buffer, axis=0)
+```
 
 ##### 4. Plausability testing of line fits
 * Check 1: check if lines are somewhat parallel by comparing sign of coefficients, only if all signs of the left and right line fit are identical we assume parallel lines
