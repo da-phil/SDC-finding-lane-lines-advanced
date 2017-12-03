@@ -13,8 +13,6 @@
 
 ### Camera Calibration
 
-#### 1. Briefly state how you computed the camera matrix and distortion coefficients. Provide an example of a distortion corrected calibration image.
-
 The code for this step is contained in the first code cell of the IPython notebook located in [Advanced-Lane-Lines.ipynb](Advanced-Lane-Lines.ipynb).
 
 I start by preparing "object points", which will be the (x, y, z) coordinates of the chessboard corners in the world. Here I am assuming the chessboard is fixed on the (x, y) plane at z=0, such that the object points are the same for each calibration image.  Thus, `objp` is just a replicated array of coordinates, and `objpoints` will be appended with a copy of it every time I successfully detect all chessboard corners in a test image.  `imgpoints` will be appended with the (x, y) pixel position of each of the corners in the image plane with each successful chessboard detection.  
@@ -81,6 +79,8 @@ Here's an example of my output for this step.
 * Creating windows to mark pixels considered for line fitting
 
 ##### 2. Fitting lines with RANSAC approach
+Using the [https://en.wikipedia.org/wiki/Random_sample_consensus](RANSAC) method for data fitting improves robustness against outliers. Due to a rather simple segmentation there are plenty of outliers in the segmented image which might cause a bad fit, where lines have offsets or even bend into the wrong direction.
+
 
 ##### 3. Averaging line coefficients
 
@@ -103,18 +103,16 @@ I implemented this step in lines # through # in my code in `yet_another_file.py`
 
 ![alt text][image6]
 
----
 
 ### Pipeline (video)
 
-#### 1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (wobbly lines are ok but no catastrophic failures that would cause the car to drive off the road!).
+Here are the links to the processed videos:
+* [project_video.mp4](./videos_output/project_video.mp4)
+* [challenge_video.mp4](./videos_output/challenge_video.mp4)
+* [harder_challenge_video.mp4](./videos_output/harder_challenge_video.mp4)
 
-Here's a [link to my video result](./project_video.mp4)
+### Discussion of issues with the current solution
 
----
+Because the quality of the lane detection heavily depends on the lane line segmentation it is the weakest point in the whole pipeline. The thresholding of colour channels is not really the most robust and generic solution for all road and light conditions, it fails once the road is not evenly lit or even has some repaired damages.
+* Lane detection: the outlier detection of my current solution has still some room for improvement.
 
-### Discussion
-
-#### 1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
-
-Here I'll talk about the approach I took, what techniques I used, what worked and why, where the pipeline might fail and how I might improve it if I were going to pursue this project further.  
