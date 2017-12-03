@@ -1,16 +1,5 @@
 ## Advanced Lane Finding Project writeup
 
-The goals / steps of this project are the following:
-
-* Compute the camera calibration matrix and distortion coefficients given a set of chessboard images.
-* Apply a distortion correction to raw images.
-* Use color transforms, gradients, etc., to create a thresholded binary image.
-* Apply a perspective transform to rectify binary image ("birds-eye view").
-* Detect lane pixels and fit to find the lane boundary.
-* Determine the curvature of the lane and vehicle position with respect to center.
-* Warp the detected lane boundaries back onto the original image.
-* Output visual display of the lane boundaries and numerical estimation of lane curvature and vehicle position.
-
 [//]: # (Image References)
 
 [image1]: ./examples/undistort_output.png "Undistorted"
@@ -96,9 +85,11 @@ Here's an example of my output for this step.
 ##### 3. Averaging line coefficients
 
 ##### 4. Plausability testing of line fits
-
-
+* Check 1: check if lines are somewhat parallel by comparing sign of coefficients, only if all signs of the left and right line fit are identical we assume parallel lines
+* Check 2: check if lines are intersecting already within the unwarped image
+* Check 3: check if apex point of left and right line fit is within a reasonable range:
 Then I did some other stuff and fit my lane lines with a 2nd order polynomial kinda like this:
+* Check 4: check if both line fits are the same
 
 ![alt text][image5]
 
