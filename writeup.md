@@ -160,15 +160,34 @@ Then I did some other stuff and fit my lane lines with a 2nd order polynomial ki
 
 ![alt text][image5]
 
-#### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
+#### 5. Calculation of radius of curvature of the lane and position of the vehicle with respect to center
+```python
+    # Fit new polynomials also to x,y in world space
+    left_fit_cr  = np.polyfit(ploty*self.ym_per_pix, self.left_line.bestx*self.xm_per_pix, 2)
+    right_fit_cr = np.polyfit(ploty*self.ym_per_pix, self.right_line.bestx*self.xm_per_pix, 2)
 
-I did this in lines # through # in my code in `my_other_file.py`
+    y_eval = ysize # evaluate curvature in the bottom of the image, close to the car
 
-#### 6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
+    # Calculate radius of curvature of the lines in meters
+    self.left_line.radius_of_curvature = (((1 + (2*left_fit_cr[0]*y_eval*self.ym_per_pix + left_fit_cr[1])**2)**1.5)
+                                          / np.absolute(2*left_fit_cr[0]))
+    self.right_line.radius_of_curvature = (((1 + (2*right_fit_cr[0]*y_eval*self.ym_per_pix + right_fit_cr[1])**2)**1.5)
+                                           / np.absolute(2*right_fit_cr[0]))
 
-I implemented this step in lines # through # in my code in `yet_another_file.py` in the function `map_lane()`.  Here is an example of my result on a test image:
+    # Calculate distance between image center and lines in meters
+    left_fitx_cr  = np.polyval(left_fit_cr,  [y_eval*self.ym_per_pix])
+    right_fitx_cr = np.polyval(right_fit_cr, [y_eval*self.ym_per_pix])
+    self.left_line.line_base_pos  = self.xm_per_pix*xsize/2 - left_fitx_cr
+    self.right_line.line_base_pos = right_fitx_cr - self.xm_per_pix*xsize/2
+```
 
-![alt text][image6]
+#### 6. Example output after window search
+
+Here are two examples of how the window search was able to find the lane lines in difficult conditions:
+
+![](examples/pipeline_challenge1.png)
+
+![](examples/pipeline_challenge4.png)
 
 
 ### Pipeline (video)
