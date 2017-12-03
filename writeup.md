@@ -83,8 +83,8 @@ I verified that my perspective transform was working as expected by drawing the 
 I used a combination of color thresholds on channels in different colour spaces to generate a binary images.
 In order to find out which colour channel describes the white and yellow lines best I considered the colour channels of the colour spaces RGB, HLS and LAB. I selected some example images, converted them to the mentioned colour spaces and plotted all available colour channels for visualisation purpose.
 
-[Original image](examples/colourspaces_challenge1_orig.png)
-[Image in RGB, HLS and LAB colour spaces](examples/colourspaces_challenge1.png)
+![Original image](examples/colourspaces_challenge1_orig.png)
+![Image in RGB, HLS and LAB colour spaces](examples/colourspaces_challenge1.png)
 
 ![Original image](examples/colourspaces_challenge2_orig.png)
 ![Image in RGB, HLS and LAB colour spaces](examples/colourspaces_challenge2.png)
@@ -97,7 +97,9 @@ In order to find out which colour channel describes the white and yellow lines b
 
 In the end I chose the L channel of the HLS colour space for detecting white lines and the B channel of the LAB colour space for detecting yellow lines. Both thresholded channels are then combined with the logical OR into one binary segmented image.
 Here are some examples:
+
 ![](examples/colourspaces_test5_comparison.png)
+
 ![](examples/colourspaces_challenge3_comparison.png)
 
 ##### Image histogram equalization
@@ -107,6 +109,22 @@ In order to be invariant to exposure deviations of the camera images I employed 
 ##### Adaptive thresholding
 Even after adaptive histogram equalization I noticed that one set of thresholds for the HLS_L and LAB_B channel does not generalize across all images, therefore I implemented an adaptive thresholding method which adjust the first value in the threshold tuple from a predefined default low value to a value where there are a maximum of `max_pixel_cnt` pixels left.
 In fact with this method I try to select only the bare minimum of pixels in the segmented image to make sure there are not too many outliers present for the lane detection later.
+Here is how I did it:
+```python
+    def optimize_thresholds(self, image, thresh):
+        binary = np.zeros_like(image)
+        while True:
+            binary[:] = 0
+            binary[(image > thresh[0]) & (image <= thresh[1])] = 1
+            thresh[0] += 0.01
+            pixel_sum = np.sum(binary, axis=(0,1))
+            if (pixel_sum < self.max_pixel_cnt) or thresh[0] >= thresh[1]:
+                break
+        return binary
+```
+It still has one flaw, it assumes that the default threshold you provide to the function is below the final one.
+But if you find out a good common low threshold value for a colour channel, it works well.
+
 
 #### 4. Lane detection
 
