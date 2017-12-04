@@ -2,6 +2,8 @@
 
 In this project, the goal is to write a software pipeline to identify the lane boundaries in a video
 
+![](videos_output/challenge_video.mp4.gif)
+
 ## The Project
 
 The goals / steps of this project are the following:
