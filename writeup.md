@@ -219,5 +219,4 @@ Here are the links to the processed videos:
 ### Discussion of issues with the current solution
 
 Because the quality of the lane detection heavily depends on the lane line segmentation it is the weakest point in the whole pipeline. The thresholding of colour channels is not really the most robust and generic solution for all road and light conditions, it fails once the road is not evenly lit or even has some repaired damages.
-* Lane detection: the outlier detection of my current solution has still some room for improvement.
 
