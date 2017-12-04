@@ -4,10 +4,6 @@
 
 [image1]: ./examples/undistort_output.png "Undistorted"
 [image2]: ./test_images/test1.jpg "Road Transformed"
-[image3]: ./examples/binary_combo_example.jpg "Binary Example"
-[image5]: ./examples/color_fit_lines.jpg "Fit Visual"
-[image6]: ./examples/example_output.jpg "Output"
-[video1]: ./project_video.mp4 "Video"
 
 
 ### Camera Calibration
@@ -134,8 +130,8 @@ Here are some examples of the output of the segmentation pipeline, which include
 
 ##### 1. Initial window search
 * Histogram from bottom half of image
-* Filtering with median filter
-* Peak search
+* Filtering with median filter to reduce spikes
+* Peak search with 
 * weighted averaging of peaks to identify left and right starting point for lanes
 * Creating windows to mark pixels considered for line fitting
 
@@ -152,13 +148,13 @@ In order to get a fit which is robust and flicker-free the coefficients as well 
 ```
 
 ##### 4. Plausability testing of line fits
-* Check 1: check if lines are somewhat parallel by comparing sign of coefficients, only if all signs of the left and right line fit are identical we assume parallel lines
-* Check 2: check if lines are intersecting already within the unwarped image
-* Check 3: check if apex point of left and right line fit is within a reasonable range:
-Then I did some other stuff and fit my lane lines with a 2nd order polynomial kinda like this:
-* Check 4: check if both line fits are the same
-
-![alt text][image5]
+The following cases were checked and if they occurred the lines were marked as not detected which causes a fresh window search in the next iteration.
+* Check 1: check if lines are intersecting already within the unwarped image.
+Sometimes it happens that both lines intersect within the image frame which is kind of nonsense, because we rather expect parallel or semi-parallel lines. Due to a fixed warp transformation we not only get parallel lines but also slightly converging lines when the slope of the street changes from the slope of the images where we got the warping transformation from.
+* Check 2: check if apex point of left and right line fit is within a reasonable range.
+It can be observed that the apex point of both lines never are in the negative y range, they are in fact always in the positive y range.
+* Check 3: check if both line fits are the same.
+Sometimes it also happens that the search for pixels associated with the left and right line converges on one side and then both lines have the same line fit.
 
 #### 5. Calculation of radius of curvature of the lane and position of the vehicle with respect to center
 The radius of curvature is computed for both lane lines using the equation: 
